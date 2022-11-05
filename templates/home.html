@@ -24,8 +24,8 @@
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="btn-group">
-                            <a href="{% url 'like' user2=profile.user_id reaction='like' %}"><button type="button" class="btn btn-sm btn-outline-secondary">Like</button></a>
-                            <a href="{% url 'like' user2=profile.user_id reaction='dislike' %}"><button type="button" class="btn btn-sm btn-outline-secondary">Dislike</button></a>
+                            <a href="{% url 'like' action_user_id=profile.user_id reaction='like' %}"><button type="button" class="btn btn-sm btn-outline-secondary">Like</button></a>
+                            <a href="{% url 'like' action_user_id=profile.user_id reaction='dislike' %}"><button type="button" class="btn btn-sm btn-outline-secondary">Dislike</button></a>
                         </div>
                         <small class="text-muted">Online</small>
 
