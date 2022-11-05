@@ -1,0 +1,6 @@
+venv/
+manage.py
+static/
+templates/
+media/
+db.sqlite3
