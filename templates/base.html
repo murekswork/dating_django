@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css">
+    <title>Dating</title>
+</head>
+{#<style>#}
+{#    .navbar {#}
+{#        align-content: center;#}
+{#        align-items: center;#}
+{#        left: 50%;#}
+{#        display: flex;#}
+{#        padding: 0;#}
+{#        margin: 0 auto;#}
+{#    }#}
+{#</style>#}
+<body>
+    {% load static %}
+<header class="p-3 mb-3 border bottom">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <img src="{% static 'dating-app1.png' %}" width="40px" height="32px" alt="logo" class="d-inline-block align-text-top">
+            </a>
+            {% if user.is_authenticated %}
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a href="{% url 'home' %}" class="nav-link px-2 link-dark">Dating</a></li>
+                <li><a href="{% url 'dates' %}" class="nav-link px-2 link-dark">Dates</a></li>
+                <li><a href="{% url 'matches' %}" class="nav-link px-2 link-dark">Matches</a></li>
+            </ul>
+            {% endif %}
+            <form action="" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
+                <input type="text" class="form-control" placeholder="Search...">
+            </form>
+
+            <div class="dropdown text-end">
+                <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="{% if user.is_authenticated %}
+                                    {{ profile.profile_photo.image.url }}
+                                {% else %}
+                                    {% static 'default_female_image.jpg' %}
+                                {% endif %}" alt='avatar' class="rounded-circle" width="32" height="32">
+                </a>
+
+                <ul class="dropdown-menu text-small">
+                    {% if user.is_authenticated %}
+                    <li>
+                        <a href="{% url 'profile' %}" class="dropdown-item">Profile</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
+                    </li>
+                    {% else %}
+                    <li>
+                        <a href="{% url 'login' %}" class="dropdown-item">Login</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'signup' %}" class="dropdown-item">Signup</a>
+                    </li>
+                    {% endif %}
+
+                </ul>
+            </div>
+        </div>
+    </div>
+</header>
+{# old NAVBAR #}
+{#<div class="container">#}
+{#    <nav class="navbar navbar-expand-lg navbar-light bg-light">#}
+{#        <div class="container-fluid">#}
+{#        #}
+{#        <div class="collapse navbar-collapse" id="navbarSupportedContent">#}
+{#            <a class="navbar-brand" href="{% url 'home' %}">#}
+{#                <img src="{% static 'dating-app.png' %}" width="38px" height="30px" alt="logo" class="d-inline-block align-text-top">#}
+{#                Dating#}
+{#            </a>#}
+{#            <ul class="navbar-nav mr-auto">#}
+{#            {% if user.is_authenticated %}#}
+{##}
+{#              <li class="nav-item active">#}
+{#                <a class="nav-link" href="{% url 'profile' %}">Search</a>#}
+{#              </li>#}
+{##}
+{#              <li class="nav-item">#}
+{#                <a class="nav-link" href="{% url 'logout' %}">Logout</a>#}
+{#              </li>#}
+{#                <form action="" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3"><input type="search" class="form-control"></form>#}
+{#            <div class="dropdown text-end">#}
+{#                <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle show" data-bs-toggle="dropdown" aria-expanded="false">#}
+{#                    <image src="{{ profile.profile_photo.image.url }}" alt="avatar" class="rounded-circle" width="32px" height="32px"></image>#}
+{#                </a>#}
+{#                <ul class="dropdown-menu text-small">#}
+{#                    <li>#}
+{#                        <a href="{% url 'profile' %}" class="dropdown-item">Profile</a>#}
+{#                    </li>#}
+{##}
+{#                    <li>#}
+{#                        <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>#}
+{#                    </li>#}
+{##}
+{#                </ul>#}
+{#            </div>#}
+{#            {% endif %}#}
+{#            </ul>#}
+{#        </div>#}
+{#        </div>#}
+{#    </nav>#}
+{#</div>#}
+
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% block content %}
+
+    {% endblock %}
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk" crossorigin="anonymous"></script>
+</body>
+</html>

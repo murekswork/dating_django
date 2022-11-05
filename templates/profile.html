@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+    <div class="profile-container">
+
+        <li>
+            <ul>{{ user.username }}</ul>
+        </li>
+
+        <li>
+            <ul>{{ user.email }}</ul>
+        </li>
+
+        <li>
+            <ul><a href="{% url 'profile_setup' %}">Setup Profile</a></ul>
+        </li>
+    </div>
+
+    <div class="profile-container">
+
+        <li>
+            <img src="{{ profile.profile_photo.image.url }}" height='250px' width='350px' alt="">
+        </li>
+        <li>
+            <ul>!$@{{ profile }}%!FSA</ul>
+        </li>
+
+    </div>
+
+    {% if images %}
+        {% for img in images %}
+        <div class="single-image-box">
+        <img src="{{ img.image.url }}" alt="img" height="180px" width="180px">
+            <a href="{% url 'set_profile_photo' image_id=img.id %}"><button type="submit" name="set_profile_photo_{{ img.image.id }}">SET</button></a>
+        </div>
+        {% endfor %}
+    {% endif %}
+    <div class="profile-photos-container">
+        <p>Upload photo please</p>
+        <form action="" name="image" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Save</button>
+        </form>
+
+    </div>
+
+{% endblock %}

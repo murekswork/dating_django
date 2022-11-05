@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% load static %}
+    <body class="text-center">
+        <div class="container">
+        <main class="form-signin">
+            <img class="mb-4" width="72" height="" src="{% static 'dating-app.png' %}" alt="logo">
+            <h1 class="h3 mb-3 fw-normal">Please Sign in</h1>
+            <form action="" method="POST" class="login-form">
+                <div class="form-floating">
+                    {% csrf_token %}
+                    {{ form.username }}
+                </div>
+                <div class="form-floating">
+                    {{ form.password }}
+                </div>
+                <div class="checkbox mb-3">
+                    <label for="">
+                        <input type="checkbox" value="remember-me">
+                        Remember me
+                    </label>
+                </div>
+                <button class="btn btn-md btn-primary" type="submit">login</button>
+                <p><a href="{% url 'signup' %}">or signup</a></p>
+            </form>
+
+            <p class="mt-5 mb-3 text-muted">© 2021-2022</p>
+    </main>
+        </div>
+    </body>
+
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="user-container">
+
+        <li>
+            <ul>Name: {{ profile_visited }}</ul>
+        </li>
+
+        <li>
+            <ul>{% if profile_visited.gender %}Female{% else %}Male{% endif %}, {{ profile_visited.city }}, {{ profile_visited.date_of_birth }}</ul>
+        </li>
+
+        <li>
+            <ul>About: {{ profile_visited.about }}</ul>
+        </li>
+
+        <li>
+            <ul>
+                {{ profile_visited.hobby }}
+            </ul>
+        </li>
+
+
+    
+    </div>
+    
+    <div class="profile-container">
+
+        <li>
+            <img src="{{ profile_visited.profile_photo.image.url }}" alt="" width="400px" height="330px">
+        </li>
+        
+    </div>
+
+    {% if images %}
+        {% for img in images %}
+        <img src="{{ img.image.url }}" alt="img" height="130px" width="130px">
+        {% endfor %}
+    {% endif %}
+
+{% endblock %}

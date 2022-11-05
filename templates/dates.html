@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <img src="{{ profiles.profile_photo.image.url }}" alt="" width="300" height="300">
+    <p></p>{{ profiles }}
+    {{ profiles.city }} {{ profile.date_of_birth }} {{ profiles.gender }}
+    <form method="post" action="" name="like">
+    {% csrf_token %}
+    <button type="submit" formmethod="post" type="button" id="like" name="like">like</button>
+    </form>
+
+    <form method="post" name="dislike">
+    {% csrf_token %}
+    <button type="submit" formmethod="post" type="button" id="dislike" name="dislike">dislike</button>
+    </form>
+
+{% endblock content %}

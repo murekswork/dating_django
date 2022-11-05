@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+    <div class="profile-setup-container">
+
+
+        <p>Setup your profile</p>
+        <form action="" method="POST" class="profile-setup">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Save</button>
+        </form>
+
+
+    </div>
+
+
+{% endblock content %}
