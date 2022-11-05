@@ -10,6 +10,8 @@ from django.contrib import messages
 from .forms import SignupForm, ProfileSetupForm, UploadPhotoForm
 from .models import *
 
+from services.business_logic import find_all_user_liked
+
 
 @login_required
 def VisitProfileView(request, user_id):
@@ -23,7 +25,7 @@ def VisitProfileView(request, user_id):
 def GalleryPageView(request):
     if request.user.is_authenticated:
         user = Profile.objects.get(user_id=request.user.id)
-        profiles = Profile.objects.filter(~Q(gender=user.gender))
+        profiles = Profile.objects.filter(~Q(gender=user.gender)).filter(~Q(user_id__in=[o.user_id for o in find_all_user_liked(user)]))
         context = {'profiles': profiles,
                    'profile': Profile.get_profile(request.user.id),
                    'user_profile': user}
