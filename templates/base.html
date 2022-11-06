@@ -31,7 +31,7 @@
                 <li><a href="{% url 'home' %}" class="nav-link px-2 link-dark">Dating</a></li>
                 <li><a href="{% url 'dates' %}" class="nav-link px-2 link-dark">Dates</a></li>
                 <li><a href="{% url 'matches' %}" class="nav-link px-2 link-dark">Matches</a></li>
-                <li><a href="{% url 'profile_likes' %}" class="nav-link px-2 link-dark">Liked you</a></li>
+                <li><a href="{% url 'profile_likes' %}" class="nav-link px-2 link-dark">{{ profile.get_likes_length }} Likes</a></li>
             </ul>
             {% endif %}
             <form action="" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
@@ -43,7 +43,7 @@
                     <img src="{% if user.is_authenticated %}
                                     {{ profile.profile_photo.image.url }}
                                 {% else %}
-                                    {% static 'default_female_image.jpg' %}
+                                    https://cloverdalechiro.com/wp-content/uploads/2016/06/default-user-image.png
                                 {% endif %}" alt='avatar' class="rounded-circle" width="32" height="32">
                 </a>
 
@@ -51,6 +51,10 @@
                     {% if user.is_authenticated %}
                     <li>
                         <a href="{% url 'profile' %}" class="dropdown-item">{{ profile }}</a>
+                    </li>
+
+                    <li>
+                        <a href="{% url 'profile_setup' %}" class="dropdown-item">Edit profile</a>
                     </li>
                     <li>
                         <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>

@@ -3,16 +3,16 @@
 {% block content %}
     {% load static %}
     <body class="text-center">
-        <div class="container">
+        <div class="col-md-10 mx-auto col-lg-5">
         <main class="form-signin">
             <img class="mb-4" width="72" height="" src="{% static 'dating-app.png' %}" alt="logo">
             <h1 class="h3 mb-3 fw-normal">Please Sign in</h1>
-            <form action="" method="POST" class="login-form">
-                <div class="form-floating">
+            <form action="" method="POST" class="p-4 p-md-5 border rounded-3 bg-light">
+                <div class="form-floating mb-3">
                     {% csrf_token %}
                     {{ form.username }}
                 </div>
-                <div class="form-floating">
+                <div class="form-floating-mb3">
                     {{ form.password }}
                 </div>
                 <div class="checkbox mb-3">

@@ -2,48 +2,169 @@
 
 
 {% block content %}
-    <div class="profile-container">
 
-        <li>
-            <ul>{{ user.username }}</ul>
-        </li>
 
-        <li>
-            <ul>{{ user.email }}</ul>
-        </li>
+        <div class="container">
+    <div class="row">
+      <div class="col-lg-5 col-md-6">
 
-        <li>
-            <ul><a href="{% url 'profile_setup' %}">Setup Profile</a></ul>
-        </li>
+
+
+{#        <div class="mb-2">#}
+{#          <img class="w-100" src="{{ profile.profile_photo.image.url }}" alt="">#}
+{#        </div>#}
+
+        <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="true">
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            </div>
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                  <img src="{% if profile.profile_photo %}{{ profile.profile_photo.image.url }}{% else %}https://cloverdalechiro.com/wp-content/uploads/2016/06/default-user-image.png{% endif %}"
+                        class="d-block w-100" alt="profile_image">
+                </div>
+                {% for photo in profile.photos %}
+                <div class="carousel-item">
+                  <img src="{{photo.image.url}}" class="d-block w-100" alt="...">
+                </div>
+                {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
     </div>
 
-    <div class="profile-container">
 
-        <li>
-            <img src="{{ profile.profile_photo.image.url }}" height='250px' width='350px' alt="">
-        </li>
-        <li>
-            <ul>!$@{{ profile }}%!FSA</ul>
-        </li>
 
-    </div>
 
-    {% if images %}
-        {% for img in images %}
-        <div class="single-image-box">
-        <img src="{{ img.image.url }}" alt="img" height="180px" width="180px">
-            <a href="{% url 'set_profile_photo' image_id=img.id %}"><button type="submit" name="set_profile_photo_{{ img.image.id }}">SET</button></a>
+
+
+
+        <div class="mb-2 d-flex">
+          <h4 class="font-weight-normal">{{ profile}}</h4>
+          <div class="social d-flex ml-auto">
+            <a href="#" class="text-muted mr-1">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" class="text-muted mr-1">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="#" class="text-muted">
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </div>
         </div>
-        {% endfor %}
-    {% endif %}
-    <div class="profile-photos-container">
-        <p>Upload photo please</p>
-        <form action="" name="image" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Save</button>
-        </form>
+        <div class="input-group">
+            <form action="" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="id-image">Upload image</label>
+                {{ form.image }}
+                <button class="btn btn-outline-secondary" type="submit">Save</button>
+            </form>
+          <ul class="list-unstyled">
+            <li class="media">
+              <span class="w-25 text-black font-weight-normal">Gender:</span>
+              <label class="media-body">{% if profile.gender %}Female{% else %}Male{% endif %}</label>
+            </li>
+            <li class="media">
+              <span class="w-25 text-black font-weight-normal">Birthday: </span>
+              <label class="media-body">{{ profile.date_of_birth }}</label>
+            </li>
+            <li class="media">
+              <span class="w-25 text-black font-weight-normal">Location: </span>
+              <label class="media-body">{{ profile.city }}</label>
+            </li>
+            <li class="media">
+              <span class="w-25 text-black font-weight-normal">Email: </span>
+              <label class="media-body">{{ profile.user.email }}</label>
+            </li>
 
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-7 col-md-6 pl-xl-3">
+        <h5 class="font-weight-normal">Biography of {{ profile }}</h5>
+        <p>{{ profile.about }}</p>
+        <div class="my-2 bg-light p-2">
+          <p class="font-italic mb-0">The price is something not necessarily defined as financial. It could be time, effort, sacrifice, money or perhaps, something else.</p>
+        </div>
+        <ul class="list list-unstyled mb-3">
+          <li class="text-secondary font-weight-normal mb-1">
+            <span class="ti-arrow-right pr-1 text-primary"></span>
+            Commitment is something that comes from understanding that!
+          </li>
+          <li class="text-secondary font-weight-normal mb-1">
+            <span class="ti-arrow-right pr-1 text-primary"></span>
+            Its price and then having the willingness to pay that price.
+          </li>
+          <li class="text-secondary font-weight-normal mb-1">
+            <span class="ti-arrow-right pr-1 text-primary"></span>
+            Out after the fact that the price was too high.
+          </li>
+          <li class="text-secondary font-weight-normal mb-1">
+            <span class="ti-arrow-right pr-1 text-primary"></span>
+            This is important because nobody wants to put significant.
+          </li>
+        </ul>
+        <h5 class="font-weight-normal">Personal Experience</h5>
+        <p>It is truly amazing the damage that we, as parents, can inflict on our children. So why do we do it? For the most part, we don’t do it intentionally or with malice. In the majority of cases, the cause is a well-meaning but unskilled or un-thinking parent, who says the wrong thing at the wrong time, and the message sticks – as simple as that!</p>
+      {% if profile.hobbies %}
+      <div class="d-flex ml-auto">
+          {% for hob in profile.hobbies %}
+           <h1><span class="badge rounded-pill text-bg-dark">{{ hob }}</span></h1>
+          {% endfor %}
+      </div>
+      {% endif %}
     </div>
+{#    <div class="profile-container">#}
+{##}
+{#        <li>#}
+{#            <ul>{{ user.username }}</ul>#}
+{#        </li>#}
+{##}
+{#        <li>#}
+{#            <ul>{{ user.email }}</ul>#}
+{#        </li>#}
+{##}
+{#        <li>#}
+{#            <ul><a href="{% url 'profile_setup' %}">Setup Profile</a></ul>#}
+{#        </li>#}
+{#    </div>#}
+{##}
+{#    <div class="profile-container">#}
+{##}
+{#        <li>#}
+{#            <img src="{{ profile.profile_photo.image.url }}" height='250px' width='350px' alt="">#}
+{#        </li>#}
+{#        <li>#}
+{#            <ul>!$@{{ profile }}%!FSA</ul>#}
+{#        </li>#}
+{##}
+{#    </div>#}
+{##}
+{#    {% if images %}#}
+{#        {% for img in images %}#}
+{#        <div class="single-image-box">#}
+{#        <img src="{{ img.image.url }}" alt="img" height="180px" width="180px">#}
+{#            <a href="{% url 'set_profile_photo' image_id=img.id %}"><button type="submit" name="set_profile_photo_{{ img.image.id }}">SET</button></a>#}
+{#        </div>#}
+{#        {% endfor %}#}
+{#    {% endif %}#}
+{#    <div class="profile-photos-container">#}
+{#        <p>Upload photo please</p>#}
+{#        <form action="" name="image" method="POST" enctype="multipart/form-data">#}
+{#            {% csrf_token %}#}
+{#            {{ form.as_p }}#}
+{#            <button type="submit">Save</button>#}
+{#        </form>#}
+{##}
+{#    </div>#}
 
 {% endblock %}
