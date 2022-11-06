@@ -10,7 +10,7 @@ from django.contrib import messages
 from .forms import SignupForm, ProfileSetupForm, UploadPhotoForm
 from .models import *
 
-from services.business_logic import find_all_user_liked
+from services.business_logic import find_all_user_liked, find_who_liked_user
 
 
 @login_required
@@ -25,7 +25,7 @@ def VisitProfileView(request, user_id):
 def GalleryPageView(request):
     if request.user.is_authenticated:
         user = Profile.objects.get(user_id=request.user.id)
-        profiles = Profile.objects.filter(~Q(gender=user.gender)).filter(~Q(user_id__in=[o.user_id for o in find_all_user_liked(user)]))
+        profiles = Profile.objects.filter(~Q(gender=user.gender)).filter(~Q(user_id__in=[o.user_id for o in find_all_user_liked(user)])).filter(~Q(user_id__in=[o.user_id for o in find_who_liked_user(user)]))
         context = {'profiles': profiles,
                    'profile': Profile.get_profile(request.user.id),
                    'user_profile': user}
@@ -51,6 +51,9 @@ def AccountPageView(request):
                 image = form.save(commit=False)
                 image.profile = profile
                 image.save()
+                if not profile.profile_photo:
+                    profile.profile_photo = image
+                    profile.save()
                 context['uploaded_photo'] = image
                 messages.add_message(request, messages.SUCCESS, 'Photo successfully uploaded')
             return redirect('profile')
@@ -107,7 +110,7 @@ def SignupView(request):
 
                 authenticated_user = authenticate(username=new_user.email, password=request.POST['password'])
                 login(request, authenticated_user)
-            return redirect('profile')
+            return redirect('profile_setup')
     form = SignupForm()
     return render(request, template_name='registration/signup.html', context=context)
     # context = {'form': UserCreationForm}
