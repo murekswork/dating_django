@@ -7,53 +7,117 @@ from django.db.models import Q
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 
+from django.views.generic import ListView, TemplateView, View, DetailView, FormView
+
+from config.settings import AUTH_USER_MODEL
+from django.conf import settings
+
 from .forms import SignupForm, ProfileSetupForm, UploadPhotoForm
 from .models import *
 
-from services.business_logic import find_all_user_liked, find_who_liked_user
+from services.business_logic import find_all_user_liked, find_who_liked_user, like_someone
 
 
-@login_required
-def VisitProfileView(request, user_id):
-    profile = Profile.get_profile(request.user.id)
-    profile_visited = Profile.get_profile(user_id)
-    return render(request, template_name='profile_visit.html', context={'profile_visited': profile_visited,
-                                                                        'profile': profile,
-                                                                        'images': ProfilePhotosModel.objects.filter(profile=profile_visited)})
+
+class VisitProfileView(DetailView):
+    model = Profile
+    context_object_name = 'profile_visited'
+    template_name = 'profile_visit.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['profile'] = self.request.user.user_profile
+        return context
+
+    def get_queryset(self):
+        return Profile.objects.filter(user_id=self.kwargs['pk'])
+
+
+
+
+# @login_required
+# def VisitProfileView(request, user_id):
+#     profile = request.user.user_profile
+#     profile_visited = Profile.get_profile(user_id)
+#     return render(request, template_name='profile_visit.html', context={'profile_visited': profile_visited,
+#                                                                         'profile': profile,
+#                                                                         'images': ProfilePhotosModel.objects.filter(profile=profile_visited)})
+
+# class GalleryPageView(ListView):
+#     template_name = 'home.html'
+#     model = Profile
+#     context_object_name = 'profiles'
+#
+#
+#     def get_context_data(self, *, object_list=None, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['profile'] = self.request.user.user_profile
+#         return context
+#
+#
+#
+#
+#     def get_queryset(self):
+#         return Profile.objects.filter(~Q(gender=self.request.user.user_profile.gender)).filter(~Q(user_id__in=[o.user_id for o in find_all_user_liked(self.request.user.user_profile)])).filter(~Q(user_id__in=[o.user_id for o in find_who_liked_user(self.request.user.user_profile)]))
 
 @login_required
 def GalleryPageView(request):
     if request.user.is_authenticated:
-        user = Profile.objects.get(user_id=request.user.id)
-        profiles = Profile.objects.filter(~Q(gender=user.gender)).filter(~Q(user_id__in=[o.user_id for o in find_all_user_liked(user)])).filter(~Q(user_id__in=[o.user_id for o in find_who_liked_user(user)]))
+        user_profile = Profile.objects.get(user_id=request.user.id)
+        profiles = Profile.objects.filter(~Q(gender=user_profile.gender)).filter(~Q(user_id__in=[o.user_id for o in find_all_user_liked(user_profile)])).filter(~Q(user_id__in=[o.user_id for o in find_who_liked_user(user_profile)]))
         context = {'profiles': profiles,
-                   'profile': Profile.get_profile(request.user.id),
-                   'user_profile': user}
+                   'profile': user_profile,
+                   }
+
+        if 'like' in request.POST:
+            action_user_id = request.POST.get('like')
+            message = like_someone(user_profile, action_user_id=action_user_id, reaction='like')
+            messages.add_message(request, messages.SUCCESS, message=message['message'])
+
     else:
         return redirect('login')
     return render(request, template_name='home.html', context=context)
 
+
+# class AccountPageView(FormView):
+#
+#     template_name = 'profile.html'
+#     form_class = UploadPhotoForm
+#     success_url = 'profile'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['profile'] = self.request.user.user_profile
+#         return context
+#
+#     def form_valid(self, form):
+#         image = form.save(commit=False)
+#         image.profile = self.request.user.user_profile
+#         image.save()
+#
+#     def form_invalid(self, form):
+#         return self.form_class
+
+
+
 @login_required
 def AccountPageView(request):
     user = request.user
-    profile = Profile.objects.get(user_id=user.id)
+    user_profile = request.user.user_profile
     context = {'user': user,
-               'profile': profile,
+               'profile': user_profile,
                'form': UploadPhotoForm}
-    images = ProfilePhotosModel.objects.filter(profile=profile)
-    if images:
-        context['images'] = images
     form = UploadPhotoForm()
     if request.method == 'POST':
         form = UploadPhotoForm(request.POST, request.FILES)
         if form.is_valid():
             with transaction.atomic():
                 image = form.save(commit=False)
-                image.profile = profile
+                image.profile = user_profile
                 image.save()
-                if not profile.profile_photo:
-                    profile.profile_photo = image
-                    profile.save()
+                if not user_profile.profile_photo:
+                    user_profile.profile_photo = image
+                    user_profile.save()
                 context['uploaded_photo'] = image
                 messages.add_message(request, messages.SUCCESS, 'Photo successfully uploaded')
             return redirect('profile')
@@ -63,12 +127,12 @@ def AccountPageView(request):
     return render(request, template_name='profile.html', context = context)
 
 
-# def UploadPhotoView(request):
-#     query_set = {'profile': Profile.objects.get(user_id=request.user.id),
-#                  'form': UploadPhotoForm}
-#     form = UploadPhotoForm()
-#
-#     return render(request, template_name='Upload')
+def UploadPhotoView(request):
+    query_set = {'profile': Profile.objects.get(user_id=request.user.id),
+                 'form': UploadPhotoForm}
+    form = UploadPhotoForm()
+
+    return render(request, template_name='Upload')
 
 
 @login_required
@@ -94,9 +158,7 @@ def SignupView(request):
     context = {'form': SignupForm}
     if request.method == 'POST':
         form = SignupForm(request.POST)
-        print(request.POST['username'], request.POST['email'], request.POST['password'], 'alpsfk[afk12')
         if form.is_valid():
-            print('Form is valid')
             with transaction.atomic():
                 new_user = form.save(commit=False)
                 new_user.set_password(request.POST['password'])
@@ -118,7 +180,7 @@ def SignupView(request):
 
 @login_required
 def set_profile_photo_url(request, image_id):
-    profile = Profile.objects.get(user_id=request.user.id)
+    profile = request.user.user_profile
     new_image = ProfilePhotosModel.objects.get(id=image_id)
     profile.profile_photo = new_image
     profile.save()

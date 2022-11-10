@@ -1,5 +1,7 @@
-from accounts.models import Profile
-from dating_logic.models import MatchesModel
+import time
+
+from accounts.models import *
+from dating_logic.models import MatchesModel, Chat
 
 
 def find_match_between_profiles(profile1: Profile, profile2: Profile) -> MatchesModel:
@@ -20,6 +22,7 @@ def find_all_user_liked(profile: Profile) -> list[Profile]:
     profiles_liked_list = []
     for like in likes_queryset:
         profiles_liked_list.append(like.user_liked)
+    print('liked profiles',profiles_liked_list)
     return profiles_liked_list
 
 
@@ -28,16 +31,16 @@ def find_who_liked_user(profile: Profile) -> list[Profile]:
     find_who_liked_user
     Function returns list of profiles who liked user with match status 0
     """
-    likes_queryset = MatchesModel.objects.filter(user_liked=profile)
+    likes_queryset = MatchesModel.objects.filter(Q(user_liked=profile) & Q(status=0))
 
     who_liked_list = []
     for like in likes_queryset:
-        if like.status == 0:
-            who_liked_list.append(like.user_liker)
+        # if like.status == 0:
+        who_liked_list.append(like.user_liker)
     return who_liked_list
 
 
-def first_like_or_dislike(profile1, profile2: Profile, reaction: str) :
+def first_like_or_dislike(profile1, profile2: Profile, reaction: str):
     if reaction == 'like':
         like = MatchesModel(user_liker=profile1, user_liked=profile2, user_liker_like=True)
         like.save()
@@ -55,9 +58,23 @@ def react_like(profile1, profile2: Profile, reaction):
     match = find_match_between_profiles(profile1, profile2)
     if reaction == 'like':
         match.status = 1
+        match.enable_chat()
         match.save()
         return {'match-status': 'match'}
     elif reaction == 'dislike':
         match.status = 2
         match.save()
         return {'match-status': 'not match'}
+
+
+def like_someone(request_profile: Profile, action_user_id: int, reaction: str):
+    action_profile: Profile = Profile.get_profile(user_id=action_user_id)
+    print('ACTION PROFILE IS', action_profile)
+    already_liked_list = find_all_user_liked(request_profile)
+    if action_profile not in already_liked_list:
+        print('\nSTATING LIKE\n')
+        first_like_or_dislike(request_profile, action_profile, reaction)
+        print('LIKED')
+    time.sleep(1.5)
+    return {'success': True,
+            'message': f'You successfully {reaction}d {action_profile}'}

@@ -1,33 +1,115 @@
 {% extends 'base.html' %}
 
+
 {% block content %}
+    {% load static %}
+
+    <link rel="stylesheet" type="text/css" href="https://demo.plantpot.works/assets/css/normalize.css">
+    <link rel="stylesheet" href="https://use.typekit.net/opg3wle.css">
+    <style>
+
+    .btn-group {
+        position: absolute;
+        display: block;
+        top: 50%;
+    }
+    .heart-like-button {
+      position: relative;
+      width: 53.3px;
+      height: 43.3px;
+    }
+    .heart-like-button:before {
+      position: absolute;
+      top: 0;
+      left: 26.6px;
+      transform: rotate(-45deg);
+      transform-origin: 0 100%;
+      width: 26.6px;
+      height: 41.6px;
+      border-radius: 40px 40px 0 0;
+      background-color: #fa9393;
+      content: "";
+      cursor: pointer;
+      transition: background .4s;
+    }
+    .heart-like-button:after {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: rotate(45deg);
+      transform-origin :100% 100%;
+      width: 26.6px;
+      height: 41.6px;
+      border-radius: 40px 40px 0 0;
+      background-color: #f86b6b;
+      content: "";
+      cursor: pointer;
+      transition: background .4s;
+    }
+
+    .heart-like-button.liked::before,
+    .heart-like-button.liked::after {
+      background-color: #de0143;
+    }
+    .heart-like-button.liked {
+      animation: liked 0.6s ease;
+    }
+    @keyframes liked {
+      0% {
+        transform: scale(.8);
+      }
+      50% {
+        transform: scale(1.5);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+    @media screen and (max-width: 480px) {
+      #container {
+        height: auto;
+      }
+      h1 {
+        font-size: 2.5rem;
+      }
+    }
+    </style>
     <div class="album py-2 bg-light">
         <div class="container">
 
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
         {% for profile in profiles %}
             <div class="col">
-                <div class="card shadow-md" style="width: 18rem">
+                <div class="card shadow-lg" style="width: 18rem; align-items: center; text-align: center">
 
-                        {% if profile.profile_photo %}
-                            <image class="card-img" src="{{ profile.profile_photo.image.url }}" width="200" height="220"></image>
-                            {% else %} <image  class='card-img' width="200" height="220" src="data:image/jpeg;base64,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"></image>
-                        {% endif %}
-
-                    <div class="card-body">
+                    <div class="profile-photo">
+                        <a href="{% url 'visit' pk=profile.user_id %}">
+                            {% if profile.profile_photo %}
+                                <image class="img-thumbnail" src="{{ profile.profile_photo.image.url }}" width="200" height="220"></image>
+                                {% else %} <image  class='card-img' width="200" height="220" src="data:image/jpeg;base64,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"></image>
+                            {% endif %}
+                        </a>
+                        <div class="btn-group">
+                            <div class="container">
+                            <form action="" method="POST">
+                                {% csrf_token %}
+                                <button class="btn" name="like" type="submit" value="{{ profile.user_id }}"><div class="heart-like-button"></div></button>
+                            </form>
+                        </div>
+                            <script src="{% static '/js/script.js' %}"></script>
+{#                            <a href="{% url 'like' action_user_id=profile.user_id reaction='dislike' %}"><button type="button" class="btn btn-sm btn-danger">Dislike</button></a>#}
+                        </div>
+                    </div>
+                    <div class="card-body" style="text-align: center">
                         <p class="card-text">
-                            Name: <a href="{% url 'visit' user_id=profile.user_id %}">{{ profile }}</a>
-                            <p>{% if profile.gender %}Female{% else %}Male{% endif %}
-                                ,{{ profile.date_of_birth }}, {{ profile.city }}
+                            <a class="fs-4" style="text-decoration: None; color: black;" href="{% url 'visit' pk=profile.user_id %}">{{ profile }}</a>
+                            <p class="text-muted">City: {{ profile.city }}</p>
+                            <p class="text-muted">{{ profile.date_of_birth }}
                             </p>
                         </p>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="btn-group">
-                            <a href="{% url 'like' action_user_id=profile.user_id reaction='like' %}"><button type="button" class="btn btn-sm btn-outline-secondary">Like</button></a>
-                            <a href="{% url 'like' action_user_id=profile.user_id reaction='dislike' %}"><button type="button" class="btn btn-sm btn-outline-secondary">Dislike</button></a>
-                        </div>
-                        <small class="text-muted">Online</small>
+
 
                     </div>
                 </div>

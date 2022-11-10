@@ -25,10 +25,9 @@ SECRET_KEY = 'django-insecure-rb%*q+5)jj(n)i!njeh=cc+)@8_=lnryrl_t!n_q2#in#y=p2h
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.0.105']
 
 
-AUTH_USER_MODEL = 'accounts.CustomUserModel'
 # Application definition
 
 INSTALLED_APPS = [
@@ -41,6 +40,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'dating_logic.apps.DatingLogicConfig',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -124,6 +124,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+
+AUTH_USER_MODEL = 'accounts.CustomUserModel'
+
 
 LOGIN_REDIRECT_URL = 'profile'
 LOGOUT_REDIRECT_URL = 'home'

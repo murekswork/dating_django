@@ -23,7 +23,7 @@
                   <img src="{% if profile_visited.profile_photo %}{{ profile_visited.profile_photo.image.url }}{% else %}https://cloverdalechiro.com/wp-content/uploads/2016/06/default-user-image.png{% endif %}"
                         class="d-block w-100" alt="profile_image">
                 </div>
-                {% for photo in profile_visited.photos %}
+                {% for photo in profile_visited.photos.select_related %}
                 <div class="carousel-item">
                   <img src="{{photo.image.url}}" class="d-block w-100" alt="...">
                 </div>
