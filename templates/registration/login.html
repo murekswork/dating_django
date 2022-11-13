@@ -10,9 +10,12 @@
             <form action="" method="POST" class="p-4 p-md-5 border rounded-3 bg-light">
                 <div class="form-floating mb-3">
                     {% csrf_token %}
+                    <small class="text-muted">Email</small>
                     {{ form.username }}
+
                 </div>
                 <div class="form-floating-mb3">
+                    <small class="text-muted">Pword</small>
                     {{ form.password }}
                 </div>
                 <div class="checkbox mb-3">

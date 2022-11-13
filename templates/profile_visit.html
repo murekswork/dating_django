@@ -44,12 +44,12 @@
 
 
 
-
+        
         <div class="mb-2 d-flex">
-          <h4 class="font-weight-normal">{{ profile_visited }}</h4>
+          <h4 class="font-weight-normal{% if profile_visited.vip_status %} btn-shine{% endif %}" style="margin-top: 5px;">{{ profile_visited }}</h4>
           <div class="social d-flex ml-auto">
             <a href="#" class="text-muted mr-1">
-              <i class="fab fa-twitter"></i>
+                <img src="https://cdn-icons-png.flaticon.com/512/860/860924.png" alt="send-gift" class="img" style="padding: 5px; position: absolute" height="35px" alt="">
             </a>
             <a href="#" class="text-muted mr-1">
               <i class="fab fa-instagram"></i>

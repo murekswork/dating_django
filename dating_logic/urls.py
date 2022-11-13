@@ -10,4 +10,6 @@ urlpatterns = [
     path('messanger/', MessangerView, name='chats'),
     path('/messanger/chat/<int:chat_id>/', ChatView, name='chat'),
     path('', HomePageView, name='home'),
+    path('profile/cupid/', cupid_page, name='cupid_page'),
+    path('profile/cupid/buy/', cupid_buy_page, name='cupid_buy'),
 ]

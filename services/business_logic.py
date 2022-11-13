@@ -69,12 +69,9 @@ def react_like(profile1, profile2: Profile, reaction):
 
 def like_someone(request_profile: Profile, action_user_id: int, reaction: str):
     action_profile: Profile = Profile.get_profile(user_id=action_user_id)
-    print('ACTION PROFILE IS', action_profile)
     already_liked_list = find_all_user_liked(request_profile)
     if action_profile not in already_liked_list:
-        print('\nSTATING LIKE\n')
         first_like_or_dislike(request_profile, action_profile, reaction)
-        print('LIKED')
     time.sleep(1.5)
     return {'success': True,
             'message': f'You successfully {reaction}d {action_profile}'}

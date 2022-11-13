@@ -117,4 +117,22 @@ class Chat(models.Model):
     def __str__(self):
         return f'{self.profile1} | {self.profile2}'
 
+
+class Gift(models.Model):
+    name = models.CharField(max_length=50, default='Gift name')
+    gift_image = models.ImageField(upload_to='gifts/', blank=True, null=True)
+    price = models.IntegerField(default=5)
+
+    def __str__(self):
+        return self.name
+
+
+class ProfileGiftTable(models.Model):
+    profile_sender = models.ForeignKey(Profile, null=True, on_delete=models.SET_NULL, related_name='gift_sender')
+    profile_receiver = models.ForeignKey(Profile, null=True, on_delete=models.SET_NULL, related_name='gift_receiver')
+    text_card = models.TextField(null=True, blank=True, default='All the best!')
+    gift_time = models.DateField(auto_now_add=True)
+
+
+
 # Create your models here.

@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.paginator import Paginator
+from django.db import transaction
 
 
 
@@ -134,6 +135,62 @@ def ChatView(request, chat_id):
 
 # def react_like_function(request_profile, action_profile, reaction):
 #     match = MatchesModel.objects.get()
+
+def cupid_page(request):
+    profile = request.user.user_profile
+
+    context = {'profile': profile,}
+
+    if 'premium-activate' in request.POST:
+        result = activate_premium(profile)
+        messages.add_message(request, messages.WARNING, f'{result["text"]}')
+
+    return render(request, template_name='cupid_page.html', context=context)
+
+def cupid_buy_page(request):
+    profile = request.user.user_profile
+
+    context = {'profile': profile
+               }
+
+    if 'buy' in request.POST:
+        print(f'{profile}', f'value {request.POST.get("buy")}')
+        amount = request.POST.get('buy')
+        result = transaction_cupids(request_profile=profile, amount=amount)
+        if result['success']:
+            messages.add_message(request, messages.SUCCESS, f'{result["text"]}')
+        else:
+            messages.add_message(request, messages.WARNING, f'{result["text"]}')
+
+    return render(request, template_name='cupid_buy.html', context=context)
+
+def activate_premium(request_profile: Profile):
+    if request_profile.vip_status is False:
+        if request_profile.cupid_balance >= 90:
+            with transaction.atomic():
+                result = transaction_cupids(request_profile, -90)
+                request_profile.vip_status = True
+                request_profile.save()
+                return {'success': True,
+                        'text': 'You are premium member now, congrats!'}
+        else:
+            return {'success': False,
+                    'text': 'Not enough cupids'}
+    else:
+        return {'success': False,
+                'text': 'You are already premium'}
+
+def transaction_cupids(request_profile, amount):
+
+    try:
+        print('Trying transcation cupids.')
+        new_balance = request_profile.cupid_transaction(amount=amount)
+        return {'success': True,
+                'text': f'You successfully bought {amount} cupids'}
+    except:
+        print('Not enough money transaction cupids 182')
+        return {'success': False,
+                'text': 'Not enough money'}
 
 
 

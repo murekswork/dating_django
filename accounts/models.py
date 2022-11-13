@@ -51,15 +51,24 @@ class Profile(models.Model):
     hobby = models.CharField(max_length=1024, null=True, blank=True)
     profile_photo = models.ForeignKey('ProfilePhotosModel', null=True, blank=True, on_delete=models.CASCADE, related_name='profile_photo')
     relation_formats = models.TextField(choices=RELATION_FORMATS, default='Looking for sweet daddy!')
+    cupid_balance = models.IntegerField(default=0, null=True)
+    vip_status = models.BooleanField(default=False)
 
+    def cupid_transaction(self, amount):
+        amount = int(amount)
+        if amount > 0:
+            self.cupid_balance += amount
+            self.save()
+        elif amount < 0 and self.cupid_balance >= -amount:
+            self.cupid_balance += amount
+            self.save()
+        return self.cupid_balance
 
-    # def new_likes_length(self):
-    #     length = find_who_liked_user(self)
-    #     return length
+    def pay_premium(self):
+        check_balance = self.cupid_transaction(-90)
 
     def get_absolute_url(self):
         pass
-
 
     def photos(self):
         photos = ProfilePhotosModel.objects.filter(profile=self)
@@ -68,7 +77,6 @@ class Profile(models.Model):
             list_photos.append(p)
         print(list_photos)
         return list_photos
-
 
     def hobbies(self):
         if self.hobby:
@@ -79,8 +87,6 @@ class Profile(models.Model):
         profile_matches = matches_model.filter((Q(user_liker=self)) | Q(user_liked=self))
         return [match for match in profile_matches if match.status == 1]
 
-
-
     def get_likes_length(self):
         from services import find_who_liked_user
         return len(find_who_liked_user(self))
@@ -88,7 +94,6 @@ class Profile(models.Model):
     @classmethod
     def get_profile(cls, user_id):
         return cls.objects.get(user_id=user_id)
-
 
     def set_profile_photo(self, photo):
         self.profile = photo

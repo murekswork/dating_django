@@ -31,6 +31,34 @@
         padding: 0;
     }
 
+    .text-end {
+        display: flex;
+    }
+
+    .btn-shine {
+        color: #ffb244;
+        background: linear-gradient(to right, #ff4884 0, #c907ff 10%, #ff347c 20%);
+        background-position: 0;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shine 3s infinite linear;
+        animation-fill-mode: forwards;
+        -webkit-text-size-adjust: none;
+        font-weight: 600;
+        font-size: 25px;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    @keyframes shine {
+      0% {
+        background-position: 0;}
+      60% {
+        background-position: 180px;}
+      100% {
+          background-position: 180px;
+      }
+    }
 
 </style>
 {#<style>#}
@@ -60,12 +88,26 @@
             {% endif %}
 
             <div class="dropdown text-end">
+                {% if user.is_authenticated %}
+                <li class="nav-link px-2 link-dark" style="color: #ff6196!important;">{{ profile.cupid_balance }} <small style="font-size: 13px">Cupids</small></li>
                 <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="{% if user.is_authenticated %}
+                <img src="https://cdn-icons-png.flaticon.com/512/2569/2569716.png" alt="cupid-balance" width='32' height='28'>
+                </a>
+                    <ul class="dropdown-menu text-small">
+
+                        <li><a href="{% url 'cupid_page' %}" class="dropdown-item">Balance</a></li>
+                        <li><a href="{% url 'profile' %}" class="dropdown-item">Purchase</a></li>
+
+                    </ul>
+                {% endif %}
+
+                <li class="nav-link px-2 link-dark"><small style="font-size: 13px">Account</small></li>
+                <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img {% if profile.vip_status %} style="border: 3px solid rgba(255,27,126,0.81)"{% endif %} src="{% if profile.profile_photo %}
                                     {{ profile.profile_photo.image.url }}
                                 {% else %}
-                                    https://cloverdalechiro.com/wp-content/uploads/2016/06/default-user-image.png
-                                {% endif %}" alt='avatar' class="rounded-circle" width="32" height="32">
+                                    https://cdn-icons-png.flaticon.com/512/1176/1176687.png
+                                {% endif %}" alt='avatar' class="rounded-circle" width="32" height="28">
                 </a>
 
                 <ul class="dropdown-menu text-small">

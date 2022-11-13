@@ -10,6 +10,7 @@ class UploadPhotoForm(forms.ModelForm):
         exclude = ['profile', 'date']
 
 
+
 class SignupForm(forms.ModelForm):
 
     username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'id': 'username',
@@ -42,4 +43,4 @@ class ProfileSetupForm(forms.ModelForm):
     hobby = forms.MultipleChoiceField(choices=(('Dancing', 'Dancing'), ('Cooking', 'Cooking'), ('IT', 'IT')), widget=forms.SelectMultiple)
     class Meta:
         model = Profile
-        exclude = ['user']
+        exclude = ['user', 'cupid_balance', 'vip_status']
