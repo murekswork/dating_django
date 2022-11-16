@@ -105,14 +105,24 @@
             This is important because nobody wants to put significant.
           </li>
         </ul>
-        <h5 class="font-weight-normal">Personal Experience</h5>
-        <p>It is truly amazing the damage that we, as parents, can inflict on our children. So why do we do it? For the most part, we don’t do it intentionally or with malice. In the majority of cases, the cause is a well-meaning but unskilled or un-thinking parent, who says the wrong thing at the wrong time, and the message sticks – as simple as that!</p>
       {% if profile_visited.hobbies %}
       <div class="d-flex ml-auto">
           {% for hob in profile_visited.hobbies %}
            <h1><span class="badge rounded-pill text-bg-dark">{{ hob }}</span></h1>
           {% endfor %}
       </div>
+          <div class="col-md-5" style="text-align: center">
+            <div class="container">
+                {{ profile_visited }} gifts
+            <div class="row row-cols-4 row-cols-sm-3 row-cols-md-4 g-4" style="font-size: 12px;">
+                {% for gift in gifts %}
+                <div class="col">
+                    <img class="img-thumbnail" src="{{ gift.gift.gift_image.url}}" width="50px" alt="profile-gift">
+                    <p>from {{ gift.profile_sender }}</p>
+                </div>
+                {% endfor %}
+
+    </div>
       {% endif %}
     </div>
 

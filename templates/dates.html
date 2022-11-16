@@ -182,8 +182,7 @@
                     <div class="card-body" style="padding: 0;">
                         <p class="card-text">
                             Name: <a href="{% url 'visit' pk=date_profile.user_id %}">{{ date_profile }}</a>
-                            <p>{% if date_profile.gender %}Female{% else %}Male{% endif %}
-                                ,{{ date_profile.date_of_birth }}, {{ date_profile.city }}
+                            <p>{% if date_profile.gender %}Female{% else %}Male{% endif %}, {{ date_profile.date_of_birth }}, {{ date_profile.city }}
                             </p>
 
                     </div>

@@ -1,13 +1,13 @@
 import random
 import time
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from accounts.models import Profile, CustomUserModel
-from .models import MatchesModel, Chat, Message
+from .models import MatchesModel, Chat, Message, Gift
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.core.paginator import Paginator
 from django.db import transaction
 
@@ -74,14 +74,30 @@ def MessangerView(request):
     profile = Profile.get_profile(user_id=request.user.id)
     chats = Chat.get_user_chats(profile=profile)
 
-
-
+    #
+    #
     chats_with_profile_dict = []
 
     for chat in chats:
-        chats_with_profile_dict.append({'chat':chat,
-                                                 'chat_profile': chat.chat_profile(profile)})
+        chat_profile = chat.chat_profile(profile)
+        chat_read_status = ''
 
+        try:
+
+            last_message = chat.chat_messages.filter(message_sender=chat_profile).last().read_status
+            if last_message == '1':
+                chat_read_status = 'READ'
+            elif last_message == '0':
+                chat_read_status = 'UNREAD'
+
+        except: pass
+
+        chats_with_profile_dict.append({'chat':chat,
+                                         'chat_profile': chat_profile,
+                                        'chat_read_status': chat_read_status})
+
+    if not profile.vip_status:
+        chats_with_profile_dict = chats_with_profile_dict[:2]
     context = {'profile': profile,
                'chats': chats_with_profile_dict}
 
@@ -91,48 +107,69 @@ def MessangerView(request):
         selected_chat_messages = chat.get_chat_messages()
         chat_receiver = chat.get_chat_receiver(profile)
         return redirect('chat', chat_id=int(chat_id))
-        context['selected_chat_messages'] = {'messages':reversed(selected_chat_messages),
-                                             'chat_id': chat_id}
-        context['chat_receiver'] = chat_receiver
-
-    if 'message_text' in request.POST:
-        chat_id = request.POST.get('chat_id')
-        print(chat_id)
-        chat = Chat.objects.get(id=chat_id)
-
-        chat.send_message(profile=profile, message_text=request.POST.get('message_text'))
-
 
 
     return render(request, template_name='messanger.html', context=context)
 
-
+def check_chat_access(request_profile, chat: Chat):
+    if not request_profile in [chat.profile1, chat.profile2]:
+        return {'success': 'denied'}
+    return {'success': 'allowed'}
 @login_required
 def ChatView(request, chat_id):
-
     profile = request.user.user_profile
-    chat = Chat.objects.get(id=chat_id)
+    chat = get_object_or_404(Chat, id=chat_id)
+
+    if not check_chat_access(profile, chat)['success'] == 'allowed':
+        messages.add_message(request, messages.WARNING, 'Access denied')
+        return HttpResponseNotFound(request)
+
     chat_receiver = chat.get_chat_receiver(profile)
     chat_messages = chat.get_chat_messages()
+    print(chat.chat_messages.filter(~Q(message_sender=profile)))
+    chat.chat_messages.filter(~Q(message_sender=profile)).update(read_status=1)
 
     paginator = Paginator(chat_messages, per_page=15)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+
     context = {'profile': profile,
                'chat_receiver': chat_receiver,
                'chat_messages': reversed(page_obj),
                'chat_length': len(page_obj),
-               'page_obj': page_obj}
+               'page_obj': page_obj,
+               'chat_id': chat_id}
 
     if 'message_text' in request.POST:
         chat.send_message(profile, request.POST.get('message_text'))
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+    if 'message_gift' in request.POST:
+        context['gift_list'] = Gift.objects.all()
+
     return render(request, template_name='chat.html', context=context)
 
 
+def send_chat_gift_view(request, chat_id, gift_id):
+    chat = Chat.objects.get(id=chat_id)
+    result = chat.send_gift(profile=request.user.user_profile, gift_id=gift_id)
+    messages.add_message(request, messages.SUCCESS, result['text'])
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+@login_required
+def send_gift_view(request_profile, chat_id, gift_id):
+    if request_profile:
+        pass
+
+
+@login_required
+def delete_chat_view(request, chat_id):
+    chat = Chat.objects.get(pk=chat_id)
+    messages.add_message(request, messages.SUCCESS, f'Your chat {chat} was successfully deleted!')
+    chat.delete()
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 # def react_like_function(request_profile, action_profile, reaction):
 #     match = MatchesModel.objects.get()
 

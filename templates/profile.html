@@ -58,11 +58,14 @@
               {% endfor %}
         </div>
       {% endif %}
+          <small class="fs-4 w-100" style="text-align: center;">upload new photo</small>
         <div class="input-group d-flex">
+
             <form action="" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ form.image }}
-                <button class="btn btn-md" type="submit">Save</button>
+
+                <button class="btn btn-sm btn-success w-100" type="submit">Save</button>
             </form>
         </div>
 
@@ -96,8 +99,17 @@
             </div>
 
         </ul>
-        <h5 class="font-weight-normal">Personal Experience</h5>
-        <p>It is truly amazing the damage that we, as parents, can inflict on our children. So why do we do it? For the most part, we don’t do it intentionally or with malice. In the majority of cases, the cause is a well-meaning but unskilled or un-thinking parent, who says the wrong thing at the wrong time, and the message sticks – as simple as that!</p>
+      <div class="col-md-5" style="text-align: center">
+            <div class="container">
+                {{ profile }} gifts
+            <div class="row row-cols-4 row-cols-sm-3 row-cols-md-4 g-4" style="font-size: 12px;">
+                {% for gift in gifts %}
+                <div class="col">
+                    <img class="img-thumbnail" src="{{ gift.gift.gift_image.url}}" width="50px" alt="profile-gift">
+                    <p>from {{ gift.profile_sender }}</p>
+                </div>
+                {% endfor %}
+
     </div>
 {#    <div class="profile-container">#}
 {##}

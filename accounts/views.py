@@ -14,9 +14,10 @@ from django.conf import settings
 
 from .forms import SignupForm, ProfileSetupForm, UploadPhotoForm
 from .models import *
+from dating_logic.models import ProfileGiftTable
 
-from services.business_logic import find_all_user_liked, find_who_liked_user, like_someone
-
+from services.business_logic import find_all_user_liked, like_someone, find_who_liked_user
+from services import business_logic
 
 
 class VisitProfileView(DetailView):
@@ -27,6 +28,7 @@ class VisitProfileView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['profile'] = self.request.user.user_profile
+        context['gifts'] = ProfileGiftTable.objects.filter(profile_receiver=context['profile'])
         return context
 
     def get_queryset(self):
@@ -106,7 +108,8 @@ def AccountPageView(request):
     user_profile = request.user.user_profile
     context = {'user': user,
                'profile': user_profile,
-               'form': UploadPhotoForm}
+               'form': UploadPhotoForm,
+               'gifts': ProfileGiftTable.objects.filter(profile_receiver=user_profile)}
     form = UploadPhotoForm()
     if request.method == 'POST':
         form = UploadPhotoForm(request.POST, request.FILES)

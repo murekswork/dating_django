@@ -88,7 +88,7 @@ class Profile(models.Model):
         return [match for match in profile_matches if match.status == 1]
 
     def get_likes_length(self):
-        from services import find_who_liked_user
+        from services.business_logic import find_who_liked_user
         return len(find_who_liked_user(self))
 
     @classmethod

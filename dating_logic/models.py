@@ -63,19 +63,18 @@ class MatchesModel(models.Model):
 
     def disable_chat(self):
         self.chat_function = False
-        self.chat.delete()
         self.save()
         return self.chat_function
 
 
 class Message(models.Model):
-    READ_STATUS = (('READ', 'READ'), ('NOT_READ', 'NOT_READ'))
-    SEND_STATUS = (('SENT', 'SENT'), ('NOT_SENT', 'NOT_SET'))
-    chat = models.ForeignKey('Chat', on_delete=models.CASCADE, related_name='chat')
-    read_status = models.CharField(max_length=20, choices=READ_STATUS, default='NOT READ')
+    chat = models.ForeignKey('Chat', on_delete=models.CASCADE, related_name='chat_messages')
+    read_status = models.BooleanField(default=False, null=False, blank=False)
     send_time = models.DateTimeField(auto_now_add=True)
     message_sender = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='message_sender')
     message_text = models.CharField(max_length=2048, blank=True, null=True)
+    message_gift = models.ForeignKey('ProfileGiftTable', null=True, blank=True, on_delete=models.CASCADE)
+
 
     def __str__(self):
         return str(self.send_time)
@@ -103,11 +102,28 @@ class Chat(models.Model):
         messages = Message.objects.order_by('-send_time').filter(chat=self)
         return messages
 
-    def send_message(self, profile: Profile, message_text) -> Message:
-        message = Message(chat=self, message_sender=profile, message_text=message_text)
+    def send_message(self, profile: Profile, message_text, message_gift: "ProfileGiftTable" = None) -> Message:
+        message = Message(chat=self, message_sender=profile, message_text=message_text, message_gift=message_gift)
         message.save()
         self.newest_message_time = datetime.datetime.now()
         return message
+
+    def send_gift(self, profile: Profile, gift_id: "Gift"):
+        receiver = self.get_chat_receiver(request_profile=profile)
+        gift = Gift.objects.get(id=gift_id)
+
+        if not profile.cupid_balance >= gift.price:
+            return {'success': False,
+                    'text': 'Not enough cupids!'}
+
+        profile.cupid_transaction(amount=-gift.price)
+        sent_gift = ProfileGiftTable(profile_sender=profile, profile_receiver=receiver, gift=gift)
+        sent_gift.save()
+        self.send_message(profile=profile, message_text='Gift', message_gift=sent_gift)
+        sent_gift.save()
+        return {'success': True,
+                'text': f'{profile} sent {gift} to {receiver}!'}
+
 
     @classmethod
     def get_user_chats(cls, profile):
@@ -130,8 +146,10 @@ class Gift(models.Model):
 class ProfileGiftTable(models.Model):
     profile_sender = models.ForeignKey(Profile, null=True, on_delete=models.SET_NULL, related_name='gift_sender')
     profile_receiver = models.ForeignKey(Profile, null=True, on_delete=models.SET_NULL, related_name='gift_receiver')
+    gift = models.ForeignKey(Gift, on_delete=models.CASCADE, null=True, blank=True)
     text_card = models.TextField(null=True, blank=True, default='All the best!')
     gift_time = models.DateField(auto_now_add=True)
+
 
 
 
