@@ -19,8 +19,6 @@ class CustomUserManager(BaseUserManager):
         user = self.model(email=email, username=username)
         user.set_password(password)
         user.save(using=self._db)
-        profile = Profile(user=user, profile_photo=ProfilePhotosModel.objects.get(id=2))
-        profile.save(using=self._db)
         return user
 
     def create_superuser(self, email, password, username):
@@ -47,13 +45,41 @@ class Profile(models.Model):
     date_of_birth = models.DateField(blank=True, null=True)
     about = models.CharField(max_length=1024, null=True, blank=True)
     city = models.CharField(max_length=200, null=True, blank=True)
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True, on_delete=models.CASCADE, related_name='user_profile')
+    user = models.OneToOneField("CustomUserModel", primary_key=True, on_delete=models.CASCADE, related_name='user_profile')
     hobby = models.CharField(max_length=1024, null=True, blank=True)
-    profile_photo = models.ForeignKey('ProfilePhotosModel', null=True, blank=True, on_delete=models.CASCADE, related_name='profile_photo')
+    profile_photo = models.ForeignKey('ProfilePhotosModel', null=True, blank=True, default=None, on_delete=models.SET_DEFAULT, related_name='profile_photo')
     relation_formats = models.TextField(choices=RELATION_FORMATS, default='Looking for sweet daddy!')
     cupid_balance = models.IntegerField(default=0, null=True)
     vip_status = models.BooleanField(default=False)
 
+    def sign_up_welcome_messages(self):
+        from dating_logic.models import Chat, MatchesModel, Message
+        # welcome_match1 = MatchesModel(user_liker=Profile.objects.get(user__email='bot1@mail.ru'), user_liked=self).save()
+        # welcome_match2 = MatchesModel(user_liker=Profile.objects.get(user__email='bot2@mail.ru'), user_liked=self).save()
+        welcome_chat1 = Chat.objects.create(profile1=Profile.objects.get(user_id=77), profile2=self)
+        welcome_chat2 = Chat.objects.create(profile1=Profile.objects.get(user_id=78), profile2=self)
+        welcome_chat1.send_message(profile=Profile.objects.get(user_id=77), message_text='Heeelo sweeeeet!')
+        welcome_chat2.send_message(profile=Profile.objects.get(user_id=78), message_text='You are reeeeallly niceee!')
+        # welcome_chat1 = welcome_match1.enable_chat().save()
+        # welcome_chat2 = welcome_match2.enable_chat().save()
+        # welcome_chat1.send_message(profile=Profile.objects.get(email='bot1@mail.ru'), message_text='Hello sweeeeet! :D')
+        # welcome_chat2.send_message(profile=Profile.objects.get(email='bot2@mail.ru'), message_text='Do you want to meet up?')
+
+
+    def get_unread_chats(self):
+        # chat_set_one = self.chat_profile_1.select_related()
+        # chat_set_two = self.chat_profile_2.select_related()
+        # all_chats = chat_set_one.union(chat_set_two)
+        from dating_logic.models import Chat, Message
+        unread_messages = Message.objects.filter(message_recipient=self, read_status=0)
+        print('Unread msg: ',unread_messages)
+        # all_chats = Chat.objects.filter(Q(profile1=self) | Q(profile2=self)).only()
+        # unread_msg_length = 0
+        # for chat in all_chats:
+        #     if chat.read_status(request_profile=self) == 'UNREAD':
+        #         unread_msg_length += 1
+        return len(unread_messages)
+    #
     def cupid_transaction(self, amount):
         amount = int(amount)
         if amount > 0:
@@ -65,26 +91,30 @@ class Profile(models.Model):
         return self.cupid_balance
 
     def pay_premium(self):
-        check_balance = self.cupid_transaction(-90)
+        if self.vip_status is False and self.cupid_balance >= 90:
+            check_balance = self.cupid_transaction(-90)
+            self.vip_status = True
+            self.save()
+            return {'success': True,
+                    'text': 'Premium profile now!'}
+        return {'success': False,
+                'text': 'Not enough money or already premium'}
 
     def get_absolute_url(self):
         pass
 
     def photos(self):
-        photos = ProfilePhotosModel.objects.filter(profile=self)
-        list_photos = []
-        for p in photos:
-            list_photos.append(p)
-        print(list_photos)
-        return list_photos
+        photos = self.photos()
+        return photos
 
     def hobbies(self):
         if self.hobby:
             hobby_list = self.hobby.strip('][').split(', ')
             return hobby_list
 
-    def matches(self, matches_model):
-        profile_matches = matches_model.filter((Q(user_liker=self)) | Q(user_liked=self))
+    def matches(self):
+        from dating_logic.models import MatchesModel
+        profile_matches = MatchesModel.objects.filter((Q(user_liker=self)) | Q(user_liked=self))
         return [match for match in profile_matches if match.status == 1]
 
     def get_likes_length(self):
@@ -103,7 +133,7 @@ class Profile(models.Model):
 
 
 class ProfilePhotosModel(models.Model):
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='photos')
+    profile = models.ForeignKey(Profile, on_delete=models.SET_DEFAULT, related_name='photos', default=None, blank=True, null=True)
     date = models.DateField(auto_now_add=True)
     image = models.ImageField(upload_to='images/users/')
 

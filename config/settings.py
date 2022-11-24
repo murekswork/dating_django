@@ -27,6 +27,17 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["192.168.1.85"]
 
+INTERNAL_IPS = [
+    "192.168.1.85",
+]
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': os.path.join(BASE_DIR, 'project_cache'),
+    }
+}
+
 
 # Application definition
 
@@ -39,6 +50,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts.apps.AccountsConfig',
     'dating_logic.apps.DatingLogicConfig',
+
+    'debug_toolbar',
 ]
 
 
@@ -50,6 +63,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = 'config.urls'

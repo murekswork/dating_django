@@ -59,7 +59,7 @@ class MatchesModel(models.Model):
         self.chat_function = True
         self.chat = Chat(profile1=self.user_liker, profile2=self.user_liked)
         self.chat.save()
-        return self.chat_function
+        return self.chat
 
     def disable_chat(self):
         self.chat_function = False
@@ -72,6 +72,7 @@ class Message(models.Model):
     read_status = models.BooleanField(default=False, null=False, blank=False)
     send_time = models.DateTimeField(auto_now_add=True)
     message_sender = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='message_sender')
+    message_recipient = models.ForeignKey(Profile, null=True, blank=True, on_delete=models.CASCADE, related_name='message_recipient')
     message_text = models.CharField(max_length=2048, blank=True, null=True)
     message_gift = models.ForeignKey('ProfileGiftTable', null=True, blank=True, on_delete=models.CASCADE)
 
@@ -83,6 +84,17 @@ class Chat(models.Model):
     profile1 = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='chat_profile_1')
     profile2 = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='chat_profile_2')
     newest_message_time = models.DateTimeField(blank=True, null=True)
+
+    def read_status(self, request_profile):
+        last_message = Message.objects.filter(chat_id=self.id).exclude(message_sender=(request_profile)).last()
+        if last_message:
+            if last_message.read_status == 0:
+                return 'UNREAD'
+            else:
+                return 'READ'
+        return 'Not message'
+
+
 
     def chat_profile(self, profile):
         if self.profile1 != profile:
@@ -103,10 +115,14 @@ class Chat(models.Model):
         return messages
 
     def send_message(self, profile: Profile, message_text, message_gift: "ProfileGiftTable" = None) -> Message:
-        message = Message(chat=self, message_sender=profile, message_text=message_text, message_gift=message_gift)
-        message.save()
-        self.newest_message_time = datetime.datetime.now()
-        return message
+        if profile in [self.profile1, self.profile2]:
+            message = Message(chat=self, message_sender=profile, message_recipient=self.chat_profile(profile), message_text=message_text, message_gift=message_gift)
+            message.save()
+            self.newest_message_time = datetime.datetime.now()
+            self.save()
+            return message
+        else:
+            raise PermissionError
 
     def send_gift(self, profile: Profile, gift_id: "Gift"):
         receiver = self.get_chat_receiver(request_profile=profile)

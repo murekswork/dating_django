@@ -40,7 +40,7 @@ class ProfileSetupForm(forms.ModelForm):
     # profile_photo = forms.ImageField(required=True, widget=forms.FileInput(attrs={'class':'form-select'}))
     gender = forms.ChoiceField(choices=(('1', 'Female'), ('0', 'Male')), widget=forms.Select(attrs={'class': 'form-select'}))
     date_of_birth = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
-    hobby = forms.MultipleChoiceField(choices=(('Dancing', 'Dancing'), ('Cooking', 'Cooking'), ('IT', 'IT')), widget=forms.SelectMultiple)
+    hobby = forms.MultipleChoiceField(choices=(('Dancing', 'Dancing'), ('Cooking', 'Cooking'), ('IT', 'IT'), ('TRAVEL', 'TRAVEL'), ('ART', 'ART'), ('MUSIC', 'MUSIC'), ('COMPUTER_GAMES', 'COMPUTER_GAMES')), widget=forms.SelectMultiple)
     class Meta:
         model = Profile
         exclude = ['user', 'cupid_balance', 'vip_status']

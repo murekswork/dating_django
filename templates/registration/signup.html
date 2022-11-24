@@ -5,6 +5,11 @@
     <body class="text-center">
         <div class="col-md-10 mx-auto col-lg-5">
         <main class="form-signin">
+            {% if form.errors %}
+                {% for error in form.errors %}
+                    {{ error }}
+                {% endfor %}
+            {% endif %}
             <img class="mb-4" width="72" height="" src="{% static 'dating-app.png' %}" alt="logo">
             <h1 class="h3 mb-3 fw-normal">Please Sign up</h1>
             <form action="" method="POST" class="p-4 p-md-5 border rounded-3 bg-light">

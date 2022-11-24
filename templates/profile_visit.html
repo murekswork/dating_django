@@ -51,7 +51,7 @@
             <a href="#" class="text-muted mr-1">
                 <img src="https://cdn-icons-png.flaticon.com/512/860/860924.png" alt="send-gift" class="img" style="padding: 5px; position: absolute" height="35px" alt="">
             </a>
-            <a href="#" class="text-muted mr-1">
+            <a href="#" class="text-muted mr-1"></a>
               <i class="fab fa-instagram"></i>
             </a>
             <a href="#" class="text-muted">
@@ -113,11 +113,11 @@
       </div>
           <div class="col-md-5" style="text-align: center">
             <div class="container">
-                {{ profile_visited }} gifts
+                {{ profile_visited.first_name }} gifts
             <div class="row row-cols-4 row-cols-sm-3 row-cols-md-4 g-4" style="font-size: 12px;">
                 {% for gift in gifts %}
                 <div class="col">
-                    <img class="img-thumbnail" src="{{ gift.gift.gift_image.url}}" width="50px" alt="profile-gift">
+                    <img class="img-thumbnail" style="max-width: 60px;" src="{{ gift.gift.gift_image.url}}" style="width: 70px!important;" alt="profile-gift">
                     <p>from {{ gift.profile_sender }}</p>
                 </div>
                 {% endfor %}

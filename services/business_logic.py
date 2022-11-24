@@ -17,27 +17,30 @@ def find_match_between_profiles(profile1: Profile, profile2: Profile) -> Matches
 
 
 def find_all_user_liked(profile: Profile) -> list[Profile]:
-    likes_queryset = MatchesModel.objects.filter(user_liker=profile)
-
-    profiles_liked_list = []
-    for like in likes_queryset:
-        profiles_liked_list.append(like.user_liked)
-    print('liked profiles',profiles_liked_list)
-    return profiles_liked_list
-
+    # likes_queryset = MatchesModel.objects.filter(user_liker=profile)
+    #
+    # profiles_liked_list = []
+    # for like in likes_queryset:
+    #     profiles_liked_list.append(like.user_liked)
+    # print('liked profiles',profiles_liked_list)
+    # return profiles_liked_list
+    print("SOMTEJITOAJ")
+    print('FIND ALL USER_LIKED :', [like for like in MatchesModel.objects.filter(user_liker=profile).values('user_liked')])
+    return [like for like in MatchesModel.objects.filter(user_liker=profile).values('user_liked__user_id')]
 
 def find_who_liked_user(profile: Profile) -> list[Profile]:
     """
     find_who_liked_user
     Function returns list of profiles who liked user with match status 0
     """
-    likes_queryset = MatchesModel.objects.filter(Q(user_liked=profile) & Q(status=0))
-
-    who_liked_list = []
-    for like in likes_queryset:
-        # if like.status == 0:
-        who_liked_list.append(like.user_liker)
-    return who_liked_list
+    # likes_queryset = MatchesModel.objects.filter(Q(user_liked=profile) & Q(status=0))
+    #0
+    # who_liked_list = []
+    # for like in likes_queryset:
+    #     # if like.status == 0:
+    #     who_liked_list.append(like.user_liker)
+    # return who_liked_list
+    return [like for like in MatchesModel.objects.filter(Q(user_liked=profile) & Q(status=0)).values('user_liker__user_id')]
 
 
 def first_like_or_dislike(profile1, profile2: Profile, reaction: str):
@@ -60,11 +63,14 @@ def react_like(profile1, profile2: Profile, reaction):
         match.status = 1
         match.enable_chat()
         match.save()
-        return {'match-status': 'match'}
+        return {'match-status': 'match',
+                'text': f'Its a match with {profile2}!'}
     elif reaction == 'dislike':
         match.status = 2
+        match.disable_chat()
         match.save()
-        return {'match-status': 'not match'}
+        return {'match-status': 'not match',
+                'text': f'You disliked {profile2}!'}
 
 
 def like_someone(request_profile: Profile, action_user_id: int, reaction: str):
@@ -72,6 +78,5 @@ def like_someone(request_profile: Profile, action_user_id: int, reaction: str):
     already_liked_list = find_all_user_liked(request_profile)
     if action_profile not in already_liked_list:
         first_like_or_dislike(request_profile, action_profile, reaction)
-    time.sleep(1.5)
     return {'success': True,
             'message': f'You successfully {reaction}d {action_profile}'}
