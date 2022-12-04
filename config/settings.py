@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-rb%*q+5)jj(n)i!njeh=cc+)@8_=lnryrl_t!n_q2#in#y=p2h
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["192.168.1.85"]
+ALLOWED_HOSTS = ['192.168.43.225']
 
 INTERNAL_IPS = [
     "192.168.1.85",
@@ -48,12 +48,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'accounts.apps.AccountsConfig',
     'dating_logic.apps.DatingLogicConfig',
+    'api.apps.ApiConfig',
 
     'debug_toolbar',
+    'rest_framework',
+    'rest_framework.authtoken',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication'
+    ]
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
