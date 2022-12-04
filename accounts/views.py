@@ -12,9 +12,10 @@ from django.views.generic import ListView, TemplateView, View, DetailView, FormV
 from config.settings import AUTH_USER_MODEL
 from django.conf import settings
 
+from services.utils import ExcludedProfilesMixin
 from .forms import SignupForm, ProfileSetupForm, UploadPhotoForm
 from .models import *
-from dating_logic.models import Message, Chat, Gift
+from dating_logic.models import Message, Chat, Gift, MatchesModel
 from dating_logic.models import ProfileGiftTable
 
 from services.business_logic import find_all_user_liked, like_someone, find_who_liked_user
@@ -76,18 +77,13 @@ def get_unread_chats(request_profile):
     return unread_msg_length
 
 
-class GalleryPageView(utils.DataMixin, utils.ProfileSetupedMixin, utils.LoginRequiredMixin, ListView):
+class GalleryPageView(utils.DataMixin, ExcludedProfilesMixin, utils.ProfileSetupedMixin, utils.LoginRequiredMixin, ListView):
     template_name = 'home.html'
     model = Profile
     context_object_name = 'profiles'
     paginate_by = 8
 
-    def get_queryset(self, *kwargs):
-        excluded_profiles = find_all_user_liked(self.request.user.user_profile) + find_who_liked_user(self.request.user.user_profile)
-        excluded_profiles = []
-        print('EXCLUDE:', excluded_profiles)
 
-        return Profile.objects.all().exclude(user_id__in=(excluded['key'] for excluded in excluded_profiles))
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         extra_context = self.get_user_context()
