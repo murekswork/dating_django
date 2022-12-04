@@ -1,10 +1,12 @@
+import datetime
 import sqlite3
 
 import django.db.utils
 from django.test import TestCase
 
 from dating_logic.models import Chat, Message, MatchesModel
-from .models import CustomUserManager, CustomUserModel, Profile
+from accounts.models import CustomUserManager, CustomUserModel, Profile, ProfilePhotosModel
+
 
 class CustomUserModelTests(TestCase):
 
@@ -150,6 +152,47 @@ class CustomUserModelTests(TestCase):
         match2 = MatchesModel.objects.create(user_liker=profile3, user_liked=profile, status='1')
         self.assertEqual([match1, match2], profile.matches())
 
+    def test_profile_cupid_transaction_1(self):
+        """Test if user can not spend more cupid than current balance"""
+        user = CustomUserModel.objects.create(username='User', email='usermail@mail.ru', password='fksaopf')
+        profile = Profile.objects.create(user=user)
+        result = profile.cupid_transaction(-50)
+        self.assertEqual(result, 0)
+
+    def test_profile_cupid_transaction_2(self):
+        """Test if user can spend cupids with enough current balance"""
+        user = CustomUserModel.objects.create(username='User', email='usermail@mail.ru', password='fksaopf')
+        profile = Profile.objects.create(user=user, cupid_balance=51)
+        result = profile.cupid_transaction(-50)
+        self.assertEqual(result, 1)
+
+    def test_profile_cupid_transaction_3(self):
+        """Test if user can gain cupid balance"""
+        user = CustomUserModel.objects.create(username='User', email='usermail@mail.ru', password='fksaopf')
+        profile = Profile.objects.create(user=user, cupid_balance=10)
+        result = profile.cupid_transaction(50)
+        self.assertEqual(result, 60)
+
+    def test_new_profile_photos_not_have_photos(self):
+        """Profile photos check if new profile does not have photos"""
+        user = CustomUserModel.objects.create(username='User', email='usermail@mail.ru', password='fksaopf')
+        profile = Profile.objects.create(user=user, cupid_balance=10)
+        photos = profile.photos.select_related()
+        self.assertEqual(len(photos), 0)
+
+    def test_profile_photos_have_added_photos(self):
+        """Profile photos check if profile have added photos"""
+        user = CustomUserModel.objects.create(username='User', email='usermail@mail.ru', password='fksaopf')
+        profile = Profile.objects.create(user=user, cupid_balance=10)
+        profile_photo = ProfilePhotosModel.objects.create(profile=profile, date=datetime.datetime.now(), image=None)
+        profile_photo1 = ProfilePhotosModel.objects.create(profile=profile, date=datetime.datetime.now(), image=None)
+        profile_photo2 = ProfilePhotosModel.objects.create(profile=profile, date=datetime.datetime.now(), image=None)
+        photos = profile.photos.select_related()
+        self.assertEqual(len(photos), 3)
+
+
+
+    # def test_profile
 
 
 
