@@ -26,10 +26,11 @@ urlpatterns = [
     path('', include('accounts.urls')),
     path('', include('django.contrib.auth.urls')),
     path('', include('dating_logic.urls')),
+    path('api/v1/', include('api.urls')),
 
 ]
 
 if settings.DEBUG:
-    # import debug_toolbar
-    # urlpatterns += [path('__debug__/', include(debug_toolbar.urls))]
+    import debug_toolbar
+    urlpatterns += [path('__debug__/', include(debug_toolbar.urls))]
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
